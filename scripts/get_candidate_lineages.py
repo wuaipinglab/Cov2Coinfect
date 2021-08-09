@@ -12,8 +12,6 @@ candidate_dir = DIRPATH + 'examples/candidate/'
 if not os.path.exists(candidate_dir):
     os.mkdir(candidate_dir)
 
-ALL_MUTATIONS_NUM = 92571
-
 
 def read_dataframe(fc_df, tp):
     info = {}
@@ -88,8 +86,10 @@ if __name__ == '__main__':
     with open(lineage_75_path) as f:
         for line in f.readlines():
             lineage_75[line.split(',')[0]] = line.strip().split(',')[2:]
-
+    num = 0
     for file in os.listdir(ngs_dir):
+        num += 1
+        print(num)
         if file.endswith('.csv'):
             file_path = ngs_dir + file
 

@@ -6,12 +6,32 @@ lineage_10_path = DIRPATH + 'data/lineage_10.txt'
 lineage_75_path = DIRPATH + 'data/lineage_75.txt'
 mutation_num_path = DIRPATH + 'data/mutation_num.txt'
 
+PANGO_WHO = {
+    'B.1.1.7': 'Alpha',
+    'B.1.351': 'Beta',
+    'B.1.351.2': 'Beta',
+    'B.1.351.3': 'Beta',
+    'P.1': 'Gamma',
+    'P.1.1': 'Gamma',
+    'P.1.2': 'Gamma',
+    'B.1.617.2': 'Delta',
+    'AY.1': 'Delta',
+    'AY.2': 'Delta',
+    'AY.3': 'Delta',
+    'B.1.525': 'Eta',
+    'B.1.526': 'Iota',
+    'B.1.617.1': 'Kappa',
+    'C.37': 'Lambda'
+}
+
 df = pd.read_csv(variant_surveillance_path, delimiter='\t').dropna(axis=0, subset=['AA Substitutions', 'Pango lineage'])
 
 mutations = []
 lineages = {}
 for i in df.index:
     l = df.loc[i, 'Pango lineage']
+    if l in PANGO_WHO:
+        l = PANGO_WHO[l]
     if l not in lineages:
         lineages[l] = {'count': 1, 'mutations': {}}
     else:
