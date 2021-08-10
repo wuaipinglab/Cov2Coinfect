@@ -86,10 +86,8 @@ if __name__ == '__main__':
     with open(lineage_75_path) as f:
         for line in f.readlines():
             lineage_75[line.split(',')[0]] = line.strip().split(',')[2:]
-    num = 0
+
     for file in os.listdir(ngs_dir):
-        num += 1
-        print(num)
         if file.endswith('.csv'):
             file_path = ngs_dir + file
 
@@ -174,12 +172,10 @@ if __name__ == '__main__':
                                     sites_new.append(int(peptide_positions_dict[p_p_f][0].split('/')[0]) - 1)
                                     sites_new.append(int(peptide_positions_dict[p_p_l][0].split('/')[0]) + 1)
                                     sites_new.append(int(peptide_positions_dict[p_p_l][0].split('/')[0]) + 2)
-
                                 else:
                                     sites_new.append(int(peptide_positions_dict[p_p_f][0].split('/')[0]) - 2)
                                     sites_new.append(int(peptide_positions_dict[p_p_f][0].split('/')[0]) - 1)
                                     sites_new.append(int(peptide_positions_dict[p_p_l][0].split('/')[0]) + 2)
-
                                 bases_new = []
                                 for n in range(0, 3):
                                     bases_new.append(genome[genome['genomePos'] == sites_new[n]]
@@ -204,35 +200,33 @@ if __name__ == '__main__':
                         and len(lineage_info[l]['sample_mutation']) > 6:
                     candidate_lineages.append(l)
 
-            if len(candidate_lineages) != 0:
+            result_dict = {}
+            for l in candidate_lineages:
+                for m in lineage_info[l]['sample_mutation']:
+                    result_dict.setdefault(m, []).append(l)
 
-                result_dict = {}
-                for l in candidate_lineages:
-                    for m in lineage_info[l]['sample_mutation']:
-                        result_dict.setdefault(m, []).append(l)
+            with open(candidate_dir + file, 'w') as f:
+                f.write('mutation'
+                        + ',' + 'position'
+                        + ',' + 'frequency'
+                        + ',' + 'lineage'
+                        + ',' + 'proportion'
+                        + ',' + 'feature_threshold' + '\n')
+                for m in sample_mutations:
+                    pos = str(genome[(genome['product'] == m.split('_')[0])
+                                     & (genome['aaPos'] == int("".join(list(filter(
+                                      str.isdigit, m.split('_')[1])))))]['peptidePos'].values[0])
+                    fre = str(sample_mutations[m]['frequency'])
+                    if m in result_dict:
+                        for l in result_dict[m]:
+                            pro = str(len(lineage_info[l]['sample_mutation'])) \
+                                  + '/' + str(len(lineage_info[l]['feature']))
 
-                with open(candidate_dir + file, 'w') as f:
-                    f.write('mutation'
-                            + ',' + 'position'
-                            + ',' + 'frequency'
-                            + ',' + 'lineage'
-                            + ',' + 'proportion'
-                            + ',' + 'feature_threshold' + '\n')
-                    for m in sample_mutations:
-                        pos = str(genome[(genome['product'] == m.split('_')[0])
-                                         & (genome['aaPos'] == int("".join(list(filter(
-                                          str.isdigit, m.split('_')[1])))))]['peptidePos'].values[0])
-                        fre = str(sample_mutations[m]['frequency'])
-                        if m in result_dict:
-                            for l in result_dict[m]:
-                                pro = str(len(lineage_info[l]['sample_mutation'])) \
-                                      + '/' + str(len(lineage_info[l]['feature']))
+                            if m in lineage_75[l]:
+                                f_t = 'FV-75'
+                            else:
+                                f_t = 'FV-10'
+                            f.write(m + ',' + pos + ',' + fre + ',' + l + ',' + pro + ',' + f_t + '\n')
 
-                                if m in lineage_75[l]:
-                                    f_t = 'FV-75'
-                                else:
-                                    f_t = 'FV-10'
-                                f.write(m + ',' + pos + ',' + fre + ',' + l + ',' + pro + ',' + f_t + '\n')
-
-                        else:
-                            f.write(m + ',' + pos + ',' + fre + ',' + 'N.D.' + ',' + 'N.D.' + ',' + 'N.D.' + '\n')
+                    else:
+                        f.write(m + ',' + pos + ',' + fre + ',' + 'N.D.' + ',' + 'N.D.' + ',' + 'N.D.' + '\n')
