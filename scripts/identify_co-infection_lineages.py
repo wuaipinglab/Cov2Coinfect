@@ -71,7 +71,7 @@ def identify_infection(f_l, unique):
     freq_std = np.std(freq, ddof=0)
     if freq_std < 20 \
             and len(lineages[f_l]['mutation']) > 6 \
-            and len(lineages[f_l]['mutation']) / len(lineage_10[f_l]) > 0.3:
+            and len(lineages[f_l]['mutation']) / len(lineage_10[f_l]['feature']) > 0.3:
         mean = np.mean(freq)
         infections[f_l] = mean
         for m in lineages[f_l]['mutation']:
@@ -90,7 +90,7 @@ if __name__ == '__main__':
     lineage_10 = {}
     with open(lineage_10_path) as f:
         for line in f.readlines():
-            lineage_10[line.split(',')[0]] = line.strip().split(',')[2:]
+            lineage_10[line.split(',')[0]] = {'feature': line.strip().split(',')[2:], 'count': int(line.split(',')[1])}
 
     for file in os.listdir(candidate_dir):
         if file.endswith('.csv'):
@@ -103,7 +103,7 @@ if __name__ == '__main__':
             while len(lineages) != 0:
                 for l in lineages:
                     p = stats.hypergeom.logsf(len(lineages[l]['mutation']) - 1, ALL_MUTATIONS_NUM,
-                                              len(lineage_10[l]), len(mutations))
+                                              len(lineage_10[l]['feature']), len(mutations))
                     lineages[l]['p-value'] = p
 
                 ls_with_unique_mutation = {}
@@ -125,20 +125,24 @@ if __name__ == '__main__':
                     ls_more_than_1_unique_mutation = dict(
                         sorted(ls_more_than_1_unique_mutation.items(), key=lambda x: lineages[x[0]]['p-value'])
                     )
-
-                    for first_l in ls_more_than_1_unique_mutation:
-                        identify_infection(first_l, unique=True)
-                        break
+                    first_l = list(ls_more_than_1_unique_mutation.keys())[0]
+                    identify_infection(first_l, unique=True)
 
                 else:
                     ls_shared_mutation = dict(sorted(lineages.items(), key=lambda x: x[0]))
                     ls_shared_mutation = dict(
                         sorted(ls_shared_mutation.items(), key=lambda x: x[1]['p-value'])
                     )
-
-                    for first_l in ls_shared_mutation:
-                        identify_infection(first_l, unique=False)
-                        break
+                    first_l = list(ls_shared_mutation.keys())[0]
+                    same_mutation_lineages = {}
+                    for l in ls_shared_mutation:
+                        if ls_shared_mutation[l]['mutation'] == ls_shared_mutation[first_l]['mutation']:
+                            same_mutation_lineages[l] = lineage_10[l]['count']
+                    same_mutation_lineages = dict(
+                        sorted(same_mutation_lineages.items(), key=lambda x: x[1], reverse=True)
+                    )
+                    first_l = list(same_mutation_lineages.keys())[0]
+                    identify_infection(first_l, unique=False)
 
             # --- filter unqualified lineages ---
             df_mutation = pd.read_csv(candidate_dir + file)
