@@ -5,7 +5,7 @@ Here is the code and data for *Hang-Yu Zhou, et al.* "Genomic evidence for diver
 ***
 
 ### Overview
-![image](https://github.com/wuaipinglab/SARS-CoV-2_co-infection/blob/main/img/Fig2.pdf)
+![image](https://github.com/wuaipinglab/SARS-CoV-2_co-infection/blob/main/img/Fig2.png)
 
 ### Usage
 1.Run `get_lineagesFV_and_mutationNum.py` to get lineages feature variations and number of global SARS-CoV-2 nonsynonymous mutations.
