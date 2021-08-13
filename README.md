@@ -7,7 +7,7 @@ Here is the code and data for *Hang-Yu Zhou, et al.* "Genomic evidence for diver
 ## Overview
 ![image](https://github.com/wuaipinglab/SARS-CoV-2_co-infection/blob/main/img/Fig2.png)
 
-### Hypergeometric Distribution
+#### Hypergeometric Distribution
 ![image](https://github.com/wuaipinglab/SARS-CoV-2_co-infection/blob/main/img/formula.png)
 
 where
@@ -18,13 +18,13 @@ where
 
 For every lineage, hypergeometric test computes the probability (p-value) of observing **k** or more remaining undefined mutations that occur both in sample and this lineage feature variations under null hypothesis that is nothing special about this lineage. If this probability is sufficiently low, we can decide to reject the null hypothesis as too unlikely - mutations in sample are highly correlated with feature variations of this lineage.
 
-### Statistical Significance
+#### Statistical Significance
 Lineages with lower p-value is more likely assigned to the sample.
 
-### Mutation Frequency Uniformity
+#### Mutation Frequency Uniformity
 Frequencies of mutations that occur both in sample and one lineage feature variations should have a standard deviation less than 20.
 
-### Mutation Concentration
+#### Mutation Concentration
 Number of mutations that occur both in sample and one lineage feature variations should be greater than 6.
 Number of mutations that occur both in sample and one lineage feature variations divided by number of the lineage feature variations should be greater than 0.3.
 
