@@ -16,7 +16,7 @@ where
 * n is the number of draws (the number of remaining undefined mutations of sample),
 * k is the number of observed successes (the number of remaining undefined mutations that occur both in sample and lineage feature variations)
 
-For every lineage, hypergeometric test computes the probability (p-value) of observing **k** or more remaining undefined mutations that occur both in sample and this lineage feature variations under null hypothesis that is nothing special about this lineage. If this probability is sufficiently low, we can decide to reject the null hypothesis as too unlikely - mutations in sample are highly correlated with feature variations of this lineage.
+For every lineage, hypergeometric test computes the probability (p-value) of observing **k** or more remaining undefined mutations that occur both in sample and this lineage feature variations under null hypothesis which is nothing special about this lineage. If this probability is sufficiently low, we can decide to reject the null hypothesis as too unlikely - mutations in sample are highly correlated with feature variations of this lineage.
 
 ### Statistical Significance
 * Lineages with lower p-value is more likely assigned to the sample.
