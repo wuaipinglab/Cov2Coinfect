@@ -5,25 +5,37 @@ from scipy import stats
 
 DIRPATH = '/SSD/yexiao/co_infection/'
 lineage_10_path = DIRPATH + 'data/lineage_10.txt'
-candidate_dir = DIRPATH + 'examples/candidate/'
+lineage_75_path = DIRPATH + 'data/lineage_75.txt'
+candidate_dir = DIRPATH + 'project/candidate/'
 
-defined_1_detail_dir = DIRPATH + 'examples/defined/defined_1/detail/'
-defined_1_summary_dir = DIRPATH + 'examples/defined/defined_1/summary/'
-defined_2_detail_dir = DIRPATH + 'examples/defined/defined_2/detail/'
-defined_2_summary_dir = DIRPATH + 'examples/defined/defined_2/summary/'
-defined_3_detail_dir = DIRPATH + 'examples/defined/defined_3/detail/'
-defined_3_summary_dir = DIRPATH + 'examples/defined/defined_3/summary/'
-defined_u_detail_dir = DIRPATH + 'examples/defined/defined_u/detail/'
-defined_u_summary_dir = DIRPATH + 'examples/defined/defined_u/summary/'
+defined_dir = DIRPATH + 'project/defined/'
+defined_0_detail_dir = defined_dir + 'defined_0/detail/'
+defined_0_summary_dir = defined_dir + 'defined_0/summary/'
+defined_1_detail_dir = defined_dir + 'defined_1/detail/'
+defined_1_summary_dir = defined_dir + 'defined_1/summary/'
+defined_2_detail_dir = defined_dir + 'defined_2/detail/'
+defined_2_summary_dir = defined_dir + 'defined_2/summary/'
+defined_m_detail_dir = defined_dir + 'defined_m/detail/'
+defined_m_summary_dir = defined_dir + 'defined_m/summary/'
+defined_u_detail_dir = defined_dir + 'defined_u/detail/'
+defined_u_summary_dir = defined_dir + 'defined_u/summary/'
+defined_u0_detail_dir = defined_dir + 'defined_u0/detail/'
+defined_u0_summary_dir = defined_dir + 'defined_u0/summary/'
 
-dir_list = [defined_1_detail_dir,
-            defined_1_summary_dir,
-            defined_2_detail_dir,
-            defined_2_summary_dir,
-            defined_3_detail_dir,
-            defined_3_summary_dir,
-            defined_u_detail_dir,
-            defined_u_summary_dir]
+dir_list = [
+    defined_0_detail_dir,
+    defined_0_summary_dir,
+    defined_1_detail_dir,
+    defined_1_summary_dir,
+    defined_2_detail_dir,
+    defined_2_summary_dir,
+    defined_m_detail_dir,
+    defined_m_summary_dir,
+    defined_u_detail_dir,
+    defined_u_summary_dir,
+    defined_u0_detail_dir,
+    defined_u0_summary_dir
+]
 
 for d in dir_list:
     if not os.path.exists(d):
@@ -32,32 +44,32 @@ for d in dir_list:
 ALL_MUTATIONS_NUM = 92571
 
 
-def read_file(fc_file_path):
-    with open(fc_file_path) as fc_f:
-        fc_mutations = {}
-        fc_lineages = {}
-        for line in fc_f.readlines():
+def read_file(file_path_fc):
+    with open(file_path_fc) as f_fc:
+        mutations_fc = {}
+        lineages_fc = {}
+        for line in f_fc.readlines():
             if not line.startswith('mutation'):
                 l = line.split(',')[3]
                 if l != 'N.D.':
                     m = line.split(',')[0]
                     f = float(line.split(',')[2])
-                    if m not in fc_mutations:
-                        fc_mutations[m] = {'lineage': [l], 'frequency': f}
+                    if m not in mutations_fc:
+                        mutations_fc[m] = {'lineage': [l], 'frequency': f}
                     else:
-                        fc_mutations[m]['lineage'].append(l)
-                    if l not in fc_lineages:
-                        fc_lineages[l] = {'mutation': [m]}
+                        mutations_fc[m]['lineage'].append(l)
+                    if l not in lineages_fc:
+                        lineages_fc[l] = {'mutation': [m]}
                     else:
-                        fc_lineages[l]['mutation'].append(m)
+                        lineages_fc[l]['mutation'].append(m)
 
-    return fc_mutations, fc_lineages
+    return mutations_fc, lineages_fc
 
 
 def identify_infection(f_l, unique):
     freq = []
     if unique:
-        for m in ls_more_than_1_unique_mutation[f_l]:
+        for m in ls_mt2_unique_mutation[f_l]:
             freq.append(mutations[m]['frequency'])
     else:
         for m in lineages[f_l]['mutation']:
@@ -86,15 +98,27 @@ def identify_infection(f_l, unique):
     del lineages[f_l]
 
 
+def output_result(detail_path, summary_path):
+    df_final.to_csv(detail_path + file)
+    with open(summary_path + file, 'w') as f:
+        f.write('lineage' + ',' + 'frequency' + '\n')
+        for i in infections:
+            f.write(i + ',' + str(infections[i]) + '\n')
+
+
 if __name__ == '__main__':
     lineage_10 = {}
     with open(lineage_10_path) as f:
         for line in f.readlines():
             lineage_10[line.split(',')[0]] = {'feature': line.strip().split(',')[2:], 'count': int(line.split(',')[1])}
 
+    lineage_75 = {}
+    with open(lineage_75_path) as f:
+        for line in f.readlines():
+            lineage_75[line.split(',')[0]] = line.strip().split(',')[2:]
+
     for file in os.listdir(candidate_dir):
         if file.endswith('.csv'):
-
             mutations, lineages = read_file(candidate_dir + file)
 
             infections = {}
@@ -113,41 +137,32 @@ if __name__ == '__main__':
                         if len(ls) == 1:
                             ls_with_unique_mutation.setdefault(ls[0], []).append(m)
 
-                ls_more_than_1_unique_mutation = {}
+                ls_mt2_unique_mutation = {}
                 for l in ls_with_unique_mutation:
                     if len(ls_with_unique_mutation[l]) >= 3:
-                        ls_more_than_1_unique_mutation[l] = ls_with_unique_mutation[l]
+                        ls_mt2_unique_mutation[l] = ls_with_unique_mutation[l]
 
-                if len(ls_more_than_1_unique_mutation) > 0:
-                    ls_more_than_1_unique_mutation = dict(
-                        sorted(ls_more_than_1_unique_mutation.items(), key=lambda x: x[0])
-                    )
-                    ls_more_than_1_unique_mutation = dict(
-                        sorted(ls_more_than_1_unique_mutation.items(), key=lambda x: lineages[x[0]]['p-value'])
-                    )
-                    first_l = list(ls_more_than_1_unique_mutation.keys())[0]
+                if len(ls_mt2_unique_mutation) > 0:
+                    ls_mt2_unique_mutation = dict(sorted(ls_mt2_unique_mutation.items(), key=lambda x: x[0]))
+                    ls_mt2_unique_mutation = dict(sorted(ls_mt2_unique_mutation.items(), key=lambda x: lineages[x[0]]['p-value']))
+                    first_l = list(ls_mt2_unique_mutation.keys())[0]
                     identify_infection(first_l, unique=True)
 
                 else:
                     ls_shared_mutation = dict(sorted(lineages.items(), key=lambda x: x[0]))
-                    ls_shared_mutation = dict(
-                        sorted(ls_shared_mutation.items(), key=lambda x: x[1]['p-value'])
-                    )
+                    ls_shared_mutation = dict(sorted(ls_shared_mutation.items(), key=lambda x: x[1]['p-value']))
                     first_l = list(ls_shared_mutation.keys())[0]
                     same_mutation_lineages = {}
                     for l in ls_shared_mutation:
                         if ls_shared_mutation[l]['mutation'] == ls_shared_mutation[first_l]['mutation']:
                             same_mutation_lineages[l] = lineage_10[l]['count']
-                    same_mutation_lineages = dict(
-                        sorted(same_mutation_lineages.items(), key=lambda x: x[1], reverse=True)
-                    )
+                    same_mutation_lineages = dict(sorted(same_mutation_lineages.items(), key=lambda x: x[1], reverse=True))
                     first_l = list(same_mutation_lineages.keys())[0]
                     identify_infection(first_l, unique=False)
 
             # --- filter unqualified lineages ---
             df_mutation = pd.read_csv(candidate_dir + file)
-            df_mutation.loc[~df_mutation['lineage'].isin(infections),
-                            ['lineage', 'proportion', 'feature_threshold']] = 'N.D.'
+            df_mutation.loc[~df_mutation['lineage'].isin(infections), ['lineage', 'proportion', 'feature_threshold']] = 'N.D.'
             df_mutation.drop_duplicates(ignore_index=True, inplace=True)
             df_infection = df_mutation[df_mutation['lineage'].isin(infections)]
             df_nd = df_mutation[~df_mutation['mutation'].isin(df_infection['mutation'])]
@@ -157,8 +172,7 @@ if __name__ == '__main__':
             for i in list(infections.keys())[::-1]:
                 df_unique = df_final.drop_duplicates(subset=['mutation'], keep=False)
                 if len(df_unique[df_unique['lineage'] == i]) < 3:
-                    df_final.drop(df_final[(df_final['lineage'] == i)
-                                           & (~df_final.index.isin(df_unique.index))].index, inplace=True)
+                    df_final.drop(df_final[(df_final['lineage'] == i) & (~df_final.index.isin(df_unique.index))].index, inplace=True)
                     df_final.loc[df_final['lineage'] == i, ['lineage', 'proportion', 'feature_threshold']] = 'N.D.'
                     shared_lineages.append(i)
             for l in shared_lineages:
@@ -180,34 +194,46 @@ if __name__ == '__main__':
             for l in infections:
                 total_frequency += infections[l]
 
-            nd_proportion = len(set(df_final[df_final['lineage'] == 'N.D.']['mutation']))/len(set(df_final['mutation']))
+            if len(set(df_final['mutation'])) != 0:
 
-            if 80 <= total_frequency <= 120 and nd_proportion <= 0.3 and 0 < len(infections) <= 3:
+                nd_proportion = len(set(df_final[df_final['lineage'] == 'N.D.']['mutation'])) / len(set(df_final['mutation']))
 
-                if len(infections) == 1:
-                    df_final.to_csv(defined_1_detail_dir + file)
-                    with open(defined_1_summary_dir + file, 'w') as f:
-                        f.write('lineage' + ',' + 'frequency' + '\n')
-                        for i in infections:
-                            f.write(i + ',' + str(infections[i]) + '\n')
+                if 80 <= total_frequency <= 120 and nd_proportion <= 0.3 and len(infections) != 0:
+                    if len(infections) == 1:
+                        output_result(defined_1_detail_dir, defined_1_summary_dir)
+                    elif len(infections) == 2:
+                        output_result(defined_2_detail_dir, defined_2_summary_dir)
+                    else:
+                        output_result(defined_m_detail_dir, defined_m_summary_dir)
 
-                if len(infections) == 2:
-                    df_final.to_csv(defined_2_detail_dir + file)
-                    with open(defined_2_summary_dir + file, 'w') as f:
-                        f.write('lineage' + ',' + 'frequency' + '\n')
-                        for i in infections:
-                            f.write(i + ',' + str(infections[i]) + '\n')
+                elif len(infections) != 0:
+                    output_result(defined_u_detail_dir, defined_u_summary_dir)
 
-                if len(infections) == 3:
-                    df_final.to_csv(defined_3_detail_dir + file)
-                    with open(defined_3_summary_dir + file, 'w') as f:
-                        f.write('lineage' + ',' + 'frequency' + '\n')
-                        for i in infections:
-                            f.write(i + ',' + str(infections[i]) + '\n')
+                else:
+                    lineages_u = {}
+                    for l in lineage_10:
+                        lineages_u[l] = {'observed': []}
+                        for m in lineage_10[l]['feature']:
+                            if m in df_final['mutation'].values:
+                                lineages_u[l]['observed'].append(m)
+
+                        p = stats.hypergeom.logsf(len(lineages_u[l]['observed']) - 1, ALL_MUTATIONS_NUM,
+                                                  len(lineage_10[l]['feature']), len(set(df_final['mutation'])))
+                        lineages_u[l]['p-value'] = p
+
+                    lineages_u = dict(sorted(lineages_u.items(), key=lambda x: x[1]['p-value']))
+                    lineage_u = list(lineages_u.keys())[0]
+
+                    observed_proportion = str(len(lineages_u[lineage_u]['observed'])) + '/' + str(len(lineage_10[lineage_u]['feature']))
+
+                    df_final.loc[df_final['mutation'].isin(lineage_10[lineage_u]['feature']),
+                                 ['lineage', 'proportion', 'feature_threshold', 'group']] = lineage_u, observed_proportion, 'FV-10', '2'
+                    df_final.loc[df_final['mutation'].isin(lineage_75[lineage_u]),
+                                 ['lineage', 'proportion', 'feature_threshold', 'group']] = lineage_u, observed_proportion, 'FV-75', '1'
+
+                    mean = np.mean(df_final[df_final['mutation'].isin(lineage_10[lineage_u]['feature'])]['frequency'])
+                    infections[lineage_u] = mean
+                    output_result(defined_u0_detail_dir, defined_u0_summary_dir)
 
             else:
-                df_final.to_csv(defined_u_detail_dir + file)
-                with open(defined_u_summary_dir + file, 'w') as f:
-                    f.write('lineage' + ',' + 'frequency' + '\n')
-                    for i in infections:
-                        f.write(i + ',' + str(infections[i]) + '\n')
+                output_result(defined_0_detail_dir, defined_0_summary_dir)
