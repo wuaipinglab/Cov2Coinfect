@@ -1,11 +1,11 @@
 # Genomic evidence for divergent co-infections of SARS-CoV-2 variants
 
-Here is the code and data for *Hang-Yu Zhou, et al.* "Genomic evidence for divergent co-infections of SARS-CoV-2 variants." Journal (2021); doi:xxx
+Here is the code and data for *Hang-Yu Zhou, et al.* "Genomic evidence for divergent co-infections of SARS-CoV-2 variants."
 
 ***
 
 ## Overview
-![image](https://github.com/wuaipinglab/SARS-CoV-2_co-infection/blob/main/img/Figure2.png)
+![image](https://github.com/wuaipinglab/SARS-CoV-2_co-infection/blob/main/img/Figure2.jpeg)
 
 ### Hypergeometric Distribution
 ![image](https://github.com/wuaipinglab/SARS-CoV-2_co-infection/blob/main/img/formula.png)
@@ -19,7 +19,7 @@ where
 For every lineage, hypergeometric test computes the probability (p-value) of observing **k** or more remaining undefined mutations that occur both in sample and this lineage feature variations under null hypothesis which is nothing special about this lineage. If this probability is sufficiently low, we can decide to reject the null hypothesis as too unlikely - mutations in sample are highly correlated with feature variations of this lineage.
 
 ### Statistical Significance
-* Lineages with lower p-value is more likely assigned to the sample.
+* Lineages with lower p-value are more likely assigned to the sample.
 
 ### Mutation Frequency Uniformity
 * Frequencies of mutations that occur both in sample and one lineage feature variations should have a standard deviation less than 20.
