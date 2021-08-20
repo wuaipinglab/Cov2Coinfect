@@ -6,24 +6,23 @@ DIRPATH = '/SSD/yexiao/co_infection/'
 genome_path = DIRPATH + 'data/SARS_CoV_2.csv'
 lineage_10_path = DIRPATH + 'data/lineage_10.txt'
 lineage_75_path = DIRPATH + 'data/lineage_75.txt'
-ngs_dir = DIRPATH + 'examples/ngs/'
-candidate_dir = DIRPATH + 'examples/candidate/'
+ngs_dir = DIRPATH + 'project/ngs/'
+candidate_dir = DIRPATH + 'project/candidate/'
 
 if not os.path.exists(candidate_dir):
-    os.mkdir(candidate_dir)
+    os.makedirs(candidate_dir)
 
 
-def read_dataframe(fc_df, tp):
+def read_dataframe(df_fc, tp):
     info = {}
-    for row in fc_df.index:
-        p = fc_df.loc[row, 'Reference Position']
-        l = fc_df.loc[row, 'Length']
-        a = fc_df.loc[row, 'Allele']
-        f = fc_df.loc[row, 'Frequency']
+    for row in df_fc.index:
+        p = df_fc.loc[row, 'Reference Position']
+        l = df_fc.loc[row, 'Length']
+        a = df_fc.loc[row, 'Allele']
+        f = df_fc.loc[row, 'Frequency']
         ps = []
         for n in range(0, l):
             ps.append(str(p + n))
-
         if tp == 'mutation':
             info[(','.join(ps))] = [a, f]
         else:
@@ -32,38 +31,32 @@ def read_dataframe(fc_df, tp):
 
 
 def get_peptide_positions(tp):
-    fn_peptide_positions_dict = {}
+    peptide_positions_dict_fc = {}
     for n in range(0, len(sites)):
         site = sites[n]
-
         if tp == 'mutation':
             base = mutations[m][0][n]
         else:
             base = '-'
-
         if site in genome['genomePos'].values:
             p_ps = genome[genome['genomePos'] == site]['peptidePos'].values
             for p_p in p_ps:
-                fn_peptide_positions_dict.setdefault(p_p, []).append(str(site) + '/' + base)
-    return fn_peptide_positions_dict
+                peptide_positions_dict_fc.setdefault(p_p, []).append(str(site) + '/' + base)
+    return peptide_positions_dict_fc
 
 
 def generate_mutation_info(m_or_d, fc_aa_mut, tp):
     aa_ref = genome[genome['peptidePos'] == p_p]['aa'].values[0]
     if fc_aa_mut != aa_ref:
-
         if fc_aa_mut == '*':
             fc_aa_mut = 'stop'
-
         product = genome[genome['peptidePos'] == p_p]['product'].values[0]
         aa_position = str(genome[genome['peptidePos'] == p_p]['aaPos'].values[0])
         info = product + '_' + aa_ref + aa_position + fc_aa_mut
-
         if tp == 'mutation':
             m_or_d_dict = mutations
         else:
             m_or_d_dict = deletions
-
         if info not in sample_mutations:
             sample_mutations[info] = {
                 'site': [int(m_or_d.split(',')[0])],
@@ -90,7 +83,6 @@ if __name__ == '__main__':
     for file in os.listdir(ngs_dir):
         if file.endswith('.csv'):
             file_path = ngs_dir + file
-
             df = pd.read_csv(file_path)
             filter_count = df['Count'] > 20
             filter_frequency = df['Frequency'] > 10
@@ -112,9 +104,7 @@ if __name__ == '__main__':
 
             for m in mutations:
                 sites = [int(s) for s in m.split(',')]
-
                 peptide_positions_dict = get_peptide_positions(tp='mutation')
-
                 for p_p in peptide_positions_dict:
                     codon_sites = genome[genome['peptidePos'] == p_p]['genomePos'].values
                     mutation_dict = {}
@@ -139,26 +129,20 @@ if __name__ == '__main__':
 
             ambiguous_sites = genome[genome['genomePos'].duplicated()]['genomePos'].values
             for d in deletions:
-
                 sites = [int(s) for s in d.split(',')]
-
                 no_ambiguous_site = True
                 for a_s in ambiguous_sites:
                     if a_s in sites:
                         no_ambiguous_site = False
                 if not no_ambiguous_site:
                     continue
-
                 peptide_positions_dict = get_peptide_positions(tp='deletion')
-
                 if len(peptide_positions_dict) > 0:
                     if len(deletions[d][0]) % 3 != 0:
                         continue
-
                     p_ps = list(peptide_positions_dict.keys())
                     p_p_f = p_ps[0]
                     p_p_l = p_ps[-1]
-
                     if len(peptide_positions_dict[p_p_f]) == 3:
                         for p_p in peptide_positions_dict:
                             generate_mutation_info(d, 'del', tp='deletion')
@@ -219,14 +203,11 @@ if __name__ == '__main__':
                     fre = str(sample_mutations[m]['frequency'])
                     if m in result_dict:
                         for l in result_dict[m]:
-                            pro = str(len(lineage_info[l]['sample_mutation'])) \
-                                  + '/' + str(len(lineage_info[l]['feature']))
-
+                            pro = str(len(lineage_info[l]['sample_mutation'])) + '/' + str(len(lineage_info[l]['feature']))
                             if m in lineage_75[l]:
                                 f_t = 'FV-75'
                             else:
                                 f_t = 'FV-10'
                             f.write(m + ',' + pos + ',' + fre + ',' + l + ',' + pro + ',' + f_t + '\n')
-
                     else:
                         f.write(m + ',' + pos + ',' + fre + ',' + 'N.D.' + ',' + 'N.D.' + ',' + 'N.D.' + '\n')
