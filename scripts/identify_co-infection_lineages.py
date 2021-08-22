@@ -1,7 +1,7 @@
 import os
+from scipy import stats
 import numpy as np
 import pandas as pd
-from scipy import stats
 
 DIRPATH = '/SSD/yexiao/co_infection/'
 lineage_10_path = DIRPATH + 'data/lineage_10.txt'
@@ -17,8 +17,10 @@ defined_2_detail_dir = defined_dir + 'defined_2/detail/'
 defined_2_summary_dir = defined_dir + 'defined_2/summary/'
 defined_m_detail_dir = defined_dir + 'defined_m/detail/'
 defined_m_summary_dir = defined_dir + 'defined_m/summary/'
-defined_u_detail_dir = defined_dir + 'defined_u/detail/'
-defined_u_summary_dir = defined_dir + 'defined_u/summary/'
+defined_uND_detail_dir = defined_dir + 'defined_uND/detail/'
+defined_uND_summary_dir = defined_dir + 'defined_uND/summary/'
+defined_uF_detail_dir = defined_dir + 'defined_uF/detail/'
+defined_uF_summary_dir = defined_dir + 'defined_uF/summary/'
 defined_u0_detail_dir = defined_dir + 'defined_u0/detail/'
 defined_u0_summary_dir = defined_dir + 'defined_u0/summary/'
 
@@ -31,8 +33,10 @@ dir_list = [
     defined_2_summary_dir,
     defined_m_detail_dir,
     defined_m_summary_dir,
-    defined_u_detail_dir,
-    defined_u_summary_dir,
+    defined_uND_detail_dir,
+    defined_uND_summary_dir,
+    defined_uF_detail_dir,
+    defined_uF_summary_dir,
     defined_u0_detail_dir,
     defined_u0_summary_dir
 ]
@@ -207,7 +211,10 @@ if __name__ == '__main__':
                         output_result(defined_m_detail_dir, defined_m_summary_dir)
 
                 elif len(infections) != 0:
-                    output_result(defined_u_detail_dir, defined_u_summary_dir)
+                    if nd_proportion <= 0.3:
+                        output_result(defined_uF_detail_dir, defined_uF_summary_dir)
+                    else:
+                        output_result(defined_uND_detail_dir, defined_uND_summary_dir)
 
                 else:
                     lineages_u = {}
