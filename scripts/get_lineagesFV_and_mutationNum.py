@@ -35,7 +35,7 @@ lineages = {}
 for i in df.index:
     l = df.loc[i, 'Pango lineage']
     if l in PANGO_WHO:
-        l = PANGO_WHO[l]
+        l = PANGO_WHO[l] + '(' + l + ')'
     if l not in lineages:
         lineages[l] = {'count': 1, 'mutations': {}}
     else:
