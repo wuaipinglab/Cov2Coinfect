@@ -1,6 +1,6 @@
-# Genomic evidence for divergent co-infections of SARS-CoV-2 variants
+# Genomic evidence for divergent co-infections of SARS-CoV-2 lineages
 
-Here is the code and data for *Hang-Yu Zhou, et al.* "Genomic evidence for divergent co-infections of SARS-CoV-2 variants."
+Here is the code and data for *Hang-Yu Zhou, et al.* "Genomic evidence for divergent co-infections of SARS-CoV-2 lineages."
 
 ***
 
