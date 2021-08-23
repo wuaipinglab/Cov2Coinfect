@@ -1,7 +1,7 @@
 import os
-from scipy import stats
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 DIRPATH = '/SSD/yexiao/co_infection/'
 lineage_10_path = DIRPATH + 'data/lineage_10.txt'
@@ -13,32 +13,24 @@ defined_0_detail_dir = defined_dir + 'defined_0/detail/'
 defined_0_summary_dir = defined_dir + 'defined_0/summary/'
 defined_1_detail_dir = defined_dir + 'defined_1/detail/'
 defined_1_summary_dir = defined_dir + 'defined_1/summary/'
-defined_2_detail_dir = defined_dir + 'defined_2/detail/'
-defined_2_summary_dir = defined_dir + 'defined_2/summary/'
-defined_m_detail_dir = defined_dir + 'defined_m/detail/'
-defined_m_summary_dir = defined_dir + 'defined_m/summary/'
-defined_uND_detail_dir = defined_dir + 'defined_uND/detail/'
-defined_uND_summary_dir = defined_dir + 'defined_uND/summary/'
-defined_uF_detail_dir = defined_dir + 'defined_uF/detail/'
-defined_uF_summary_dir = defined_dir + 'defined_uF/summary/'
-defined_u0_detail_dir = defined_dir + 'defined_u0/detail/'
-defined_u0_summary_dir = defined_dir + 'defined_u0/summary/'
+defined_cd_detail_dir = defined_dir + 'defined_cd/detail/'
+defined_cd_summary_dir = defined_dir + 'defined_cd/summary/'
+defined_cp_detail_dir = defined_dir + 'defined_cp/detail/'
+defined_cp_summary_dir = defined_dir + 'defined_cp/summary/'
+defined_u_detail_dir = defined_dir + 'defined_u/detail/'
+defined_u_summary_dir = defined_dir + 'defined_u/summary/'
 
 dir_list = [
     defined_0_detail_dir,
     defined_0_summary_dir,
     defined_1_detail_dir,
     defined_1_summary_dir,
-    defined_2_detail_dir,
-    defined_2_summary_dir,
-    defined_m_detail_dir,
-    defined_m_summary_dir,
-    defined_uND_detail_dir,
-    defined_uND_summary_dir,
-    defined_uF_detail_dir,
-    defined_uF_summary_dir,
-    defined_u0_detail_dir,
-    defined_u0_summary_dir
+    defined_cd_detail_dir,
+    defined_cd_summary_dir,
+    defined_cp_detail_dir,
+    defined_cp_summary_dir,
+    defined_u_detail_dir,
+    defined_u_summary_dir
 ]
 
 for d in dir_list:
@@ -199,23 +191,14 @@ if __name__ == '__main__':
                 total_frequency += infections[l]
 
             if len(set(df_final['mutation'])) != 0:
-
-                nd_proportion = len(set(df_final[df_final['lineage'] == 'N.D.']['mutation'])) / len(set(df_final['mutation']))
-
-                if 80 <= total_frequency <= 120 and nd_proportion <= 0.3 and len(infections) != 0:
-                    if len(infections) == 1:
-                        output_result(defined_1_detail_dir, defined_1_summary_dir)
-                    elif len(infections) == 2:
-                        output_result(defined_2_detail_dir, defined_2_summary_dir)
+                if len(infections) == 1:
+                    output_result(defined_1_detail_dir, defined_1_summary_dir)
+                elif len(infections) > 0:
+                    nd_proportion = len(set(df_final[df_final['lineage'] == 'N.D.']['mutation'])) / len(set(df_final['mutation']))
+                    if 80 <= total_frequency <= 120 and nd_proportion <= 0.3:
+                        output_result(defined_cd_detail_dir, defined_cd_summary_dir)
                     else:
-                        output_result(defined_m_detail_dir, defined_m_summary_dir)
-
-                elif len(infections) != 0:
-                    if nd_proportion <= 0.3:
-                        output_result(defined_uF_detail_dir, defined_uF_summary_dir)
-                    else:
-                        output_result(defined_uND_detail_dir, defined_uND_summary_dir)
-
+                        output_result(defined_cp_detail_dir, defined_cp_summary_dir)
                 else:
                     lineages_u = {}
                     for l in lineage_10:
@@ -240,7 +223,7 @@ if __name__ == '__main__':
 
                     mean = np.mean(df_final[df_final['mutation'].isin(lineage_10[lineage_u]['feature'])]['frequency'])
                     infections[lineage_u] = mean
-                    output_result(defined_u0_detail_dir, defined_u0_summary_dir)
+                    output_result(defined_u_detail_dir, defined_u_summary_dir)
 
             else:
                 output_result(defined_0_detail_dir, defined_0_summary_dir)
