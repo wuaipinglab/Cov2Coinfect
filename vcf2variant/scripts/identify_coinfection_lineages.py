@@ -3,39 +3,6 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-DIRPATH = '/SSD/yexiao/co_infection/'
-lineage_10_path = DIRPATH + 'data/lineage_10.txt'
-lineage_75_path = DIRPATH + 'data/lineage_75.txt'
-candidate_dir = DIRPATH + 'project/candidate/'
-
-defined_dir = DIRPATH + 'project/defined/'
-defined_0_detail_dir = defined_dir + 'defined_0/detail/'
-defined_0_summary_dir = defined_dir + 'defined_0/summary/'
-defined_1_detail_dir = defined_dir + 'defined_1/detail/'
-defined_1_summary_dir = defined_dir + 'defined_1/summary/'
-defined_cd_detail_dir = defined_dir + 'defined_cd/detail/'
-defined_cd_summary_dir = defined_dir + 'defined_cd/summary/'
-defined_cp_detail_dir = defined_dir + 'defined_cp/detail/'
-defined_cp_summary_dir = defined_dir + 'defined_cp/summary/'
-defined_u_detail_dir = defined_dir + 'defined_u/detail/'
-defined_u_summary_dir = defined_dir + 'defined_u/summary/'
-
-dir_list = [
-    defined_0_detail_dir,
-    defined_0_summary_dir,
-    defined_1_detail_dir,
-    defined_1_summary_dir,
-    defined_cd_detail_dir,
-    defined_cd_summary_dir,
-    defined_cp_detail_dir,
-    defined_cp_summary_dir,
-    defined_u_detail_dir,
-    defined_u_summary_dir
-]
-
-for d in dir_list:
-    if not os.path.exists(d):
-        os.makedirs(d)
 
 ALL_MUTATIONS_NUM = 92571
 
@@ -62,7 +29,7 @@ def read_file(file_path_fc):
     return mutations_fc, lineages_fc
 
 
-def identify_infection(f_l, unique):
+def identify_infection(f_l, unique, ls_mt2_unique_mutation, lineages, mutations, lineage_10, infections):
     freq = []
     if unique:
         for m in ls_mt2_unique_mutation[f_l]:
@@ -94,7 +61,7 @@ def identify_infection(f_l, unique):
     del lineages[f_l]
 
 
-def output_result(detail_path, summary_path):
+def output_result(detail_path, summary_path, df_final, file, infections):
     df_final.to_csv(detail_path + file)
     with open(summary_path + file, 'w') as f:
         f.write('lineage' + ',' + 'frequency' + '\n')
@@ -102,7 +69,39 @@ def output_result(detail_path, summary_path):
             f.write(i + ',' + str(infections[i]) + '\n')
 
 
-if __name__ == '__main__':
+def identify_coinfection_lineages(candidate_dir, output_dir, data_dir):
+    lineage_10_path = os.path.join(data_dir, 'lineage_10.txt')
+    lineage_75_path = os.path.join(data_dir, 'lineage_75.txt')
+
+    defined_dir = os.path.join(output_dir, 'defined')
+    defined_0_detail_dir = os.path.join(defined_dir, 'defined_0', 'detail/')
+    defined_0_summary_dir = os.path.join(defined_dir, 'defined_0', 'summary/')
+    defined_1_detail_dir = os.path.join(defined_dir, 'defined_1', 'detail/')
+    defined_1_summary_dir = os.path.join(defined_dir, 'defined_1', 'summary/')
+    defined_cd_detail_dir = os.path.join(defined_dir , 'defined_cd', 'detail/')
+    defined_cd_summary_dir = os.path.join(defined_dir, 'defined_cd', 'summary/')
+    defined_cp_detail_dir = os.path.join(defined_dir, 'defined_cp', 'detail/')
+    defined_cp_summary_dir = os.path.join(defined_dir, 'defined_cp', 'summary/')
+    defined_u_detail_dir = os.path.join(defined_dir, 'defined_u', 'detail/')
+    defined_u_summary_dir = os.path.join(defined_dir, 'defined_u', 'summary/')
+
+    dir_list = [
+        defined_0_detail_dir,
+        defined_0_summary_dir,
+        defined_1_detail_dir,
+        defined_1_summary_dir,
+        defined_cd_detail_dir,
+        defined_cd_summary_dir,
+        defined_cp_detail_dir,
+        defined_cp_summary_dir,
+        defined_u_detail_dir,
+        defined_u_summary_dir
+    ]
+
+    for d in dir_list:
+        if not os.path.exists(d):
+            os.makedirs(d)
+
     lineage_10 = {}
     with open(lineage_10_path) as f:
         for line in f.readlines():
@@ -142,7 +141,7 @@ if __name__ == '__main__':
                     ls_mt2_unique_mutation = dict(sorted(ls_mt2_unique_mutation.items(), key=lambda x: x[0]))
                     ls_mt2_unique_mutation = dict(sorted(ls_mt2_unique_mutation.items(), key=lambda x: lineages[x[0]]['p-value']))
                     first_l = list(ls_mt2_unique_mutation.keys())[0]
-                    identify_infection(first_l, unique=True)
+                    identify_infection(first_l, True, ls_mt2_unique_mutation, lineages, mutations, lineage_10, infections)
 
                 else:
                     ls_shared_mutation = dict(sorted(lineages.items(), key=lambda x: x[0]))
@@ -154,7 +153,7 @@ if __name__ == '__main__':
                             same_mutation_lineages[l] = lineage_10[l]['count']
                     same_mutation_lineages = dict(sorted(same_mutation_lineages.items(), key=lambda x: x[1], reverse=True))
                     first_l = list(same_mutation_lineages.keys())[0]
-                    identify_infection(first_l, unique=False)
+                    identify_infection(first_l, False, ls_mt2_unique_mutation, lineages, mutations, lineage_10, infections)
 
             # --- filter unqualified lineages ---
             df_mutation = pd.read_csv(candidate_dir + file)
@@ -192,13 +191,13 @@ if __name__ == '__main__':
 
             if len(set(df_final['mutation'])) != 0:
                 if len(infections) == 1:
-                    output_result(defined_1_detail_dir, defined_1_summary_dir)
+                    output_result(defined_1_detail_dir, defined_1_summary_dir, df_final, file, infections)
                 elif len(infections) > 0:
                     nd_proportion = len(set(df_final[df_final['lineage'] == 'N.D.']['mutation'])) / len(set(df_final['mutation']))
                     if 80 <= total_frequency <= 120 and nd_proportion <= 0.3:
-                        output_result(defined_cd_detail_dir, defined_cd_summary_dir)
+                        output_result(defined_cd_detail_dir, defined_cd_summary_dir, df_final, file, infections)
                     else:
-                        output_result(defined_cp_detail_dir, defined_cp_summary_dir)
+                        output_result(defined_cp_detail_dir, defined_cp_summary_dir, df_final, file, infections)
                 else:
                     lineages_u = {}
                     for l in lineage_10:
@@ -223,7 +222,7 @@ if __name__ == '__main__':
 
                     mean = np.mean(df_final[df_final['mutation'].isin(lineage_10[lineage_u]['feature'])]['frequency'])
                     infections[lineage_u] = mean
-                    output_result(defined_u_detail_dir, defined_u_summary_dir)
+                    output_result(defined_u_detail_dir, defined_u_summary_dir, df_final, file, infections)
 
             else:
-                output_result(defined_0_detail_dir, defined_0_summary_dir)
+                output_result(defined_0_detail_dir, defined_0_summary_dir, df_final, file, infections)

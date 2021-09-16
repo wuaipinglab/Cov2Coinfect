@@ -104,7 +104,7 @@ def resolve_MNV(temp_records: dict) -> list:
     return res
 
 def vcf2pandas(working_dir: str, vcf_dir: str = None) -> str:
-    csv_dir = os.path.join(working_dir, "snp_csv")
+    csv_dir = os.path.join(working_dir, "snp_csv/")
     if not os.path.exists(csv_dir):
         os.mkdir(csv_dir)
 
