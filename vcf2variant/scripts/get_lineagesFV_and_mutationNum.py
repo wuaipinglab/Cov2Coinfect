@@ -1,6 +1,8 @@
+import os
 import pandas as pd
 
-DIRPATH = '/SSD/yexiao/co_infection/'
+# DIRPATH = '/SSD/yexiao/co_infection/'
+DIRPATH = os.path.join(os.path.dirname(__file__), os.pardir) + "/"
 variant_surveillance_path = DIRPATH + 'data/variant_surveillance.tsv'
 lineage_10_path = DIRPATH + 'data/lineage_10.txt'
 lineage_75_path = DIRPATH + 'data/lineage_75.txt'
