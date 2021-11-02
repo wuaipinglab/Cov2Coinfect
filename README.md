@@ -29,7 +29,7 @@ For every lineage, hypergeometric test computes the probability (p-value) of obs
 * Number of mutations that occur both in sample and one lineage feature variations divided by number of the lineage feature variations should be greater than 0.3.
 
 ## Usage
-1. Input NGS raw data to CLC Genomics Workbench with `workflow.clc` to generate variant calling file.
+1. Detect variant in NGS data with `wuaipinglab/sra2variant`
 
 2. Run `get_lineagesFV_and_mutationNum.py` to get lineages feature variations and number of global SARS-CoV-2 nonsynonymous mutations.
 
