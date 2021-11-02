@@ -37,7 +37,7 @@ for d in dir_list:
     if not os.path.exists(d):
         os.makedirs(d)
 
-ALL_MUTATIONS_NUM = 92571
+ALL_MUTATIONS_NUM = 159729
 
 
 def read_file(file_path_fc):

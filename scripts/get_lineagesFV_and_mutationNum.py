@@ -8,24 +8,13 @@ mutation_num_path = DIRPATH + 'data/mutation_num.txt'
 
 PANGO_WHO = {
     'B.1.1.7': 'Alpha',
+    'Q': 'Alpha',
     'B.1.351': 'Beta',
-    'B.1.351.2': 'Beta',
-    'B.1.351.3': 'Beta',
     'P.1': 'Gamma',
-    'P.1.1': 'Gamma',
-    'P.1.2': 'Gamma',
-    'P.1.4': 'Gamma',
-    'P.1.6': 'Gamma',
-    'P.1.7': 'Gamma',
     'B.1.617.2': 'Delta',
-    'AY.1': 'Delta',
-    'AY.2': 'Delta',
-    'AY.3': 'Delta',
-    'AY.3.1': 'Delta',
-    'B.1.525': 'Eta',
-    'B.1.526': 'Iota',
-    'B.1.617.1': 'Kappa',
-    'C.37': 'Lambda'
+    'AY': 'Delta',
+    'C.37': 'Lambda',
+    'B.1.621': 'Mu'
 }
 
 df = pd.read_csv(variant_surveillance_path, delimiter='\t').dropna(axis=0, subset=['AA Substitutions', 'Pango lineage'])
@@ -34,8 +23,9 @@ mutations = []
 lineages = {}
 for i in df.index:
     l = df.loc[i, 'Pango lineage']
-    if l in PANGO_WHO:
-        l = PANGO_WHO[l] + '(' + l + ')'
+    for l_PW in PANGO_WHO:
+        if l == l_PW or l.startswith(l_PW+'.'):
+            l = PANGO_WHO[l_PW] + '(' + l + ')'
     if l not in lineages:
         lineages[l] = {'count': 1, 'mutations': {}}
     else:
@@ -57,7 +47,7 @@ lineages = dict(sorted(lineages.items(), key=lambda x: x[0]))
 defining_SNPs_75 = {}
 defining_SNPs_10 = {}
 for l in lineages:
-    if l != 'None' and lineages[l]['count'] / len(df) > 0.0001:
+    if l != 'None' and l != 'XA' and lineages[l]['count'] / len(df) > 0.0001:
         for m in lineages[l]['mutations']:
             if lineages[l]['mutations'][m] / lineages[l]['count'] > 0.1:
                 defining_SNPs_10.setdefault(l, []).append(m)

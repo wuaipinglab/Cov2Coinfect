@@ -86,7 +86,7 @@ if __name__ == '__main__':
             df = pd.read_csv(file_path)
             filter_count = df['Count'] > 20
             filter_frequency = df['Frequency'] > 10
-            filter_quality = df['Average quality'] > 20
+            filter_quality = df['Average quality'] > 0
             is_snv = df['Type'] == 'SNV'
             is_mnv = df['Type'] == 'MNV'
             is_deletion = df['Type'] == 'Deletion'
