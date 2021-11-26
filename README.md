@@ -5,7 +5,7 @@ Here is the code and data for *Hang-Yu Zhou, et al.* "Genomic evidence for diver
 ***
 
 ## Overview
-![image](https://github.com/wuaipinglab/SARS-CoV-2_co-infection/blob/main/img/Figure2.png)
+![image](https://github.com/wuaipinglab/SARS-CoV-2_co-infection/blob/main/img/Figure2.jpg)
 
 ### Hypergeometric Distribution
 ![image](https://github.com/wuaipinglab/SARS-CoV-2_co-infection/blob/main/img/formula.png)
